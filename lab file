@@ -1,0 +1,327 @@
+# WAP to create a vector of 1st 50 even numbers.
+# to create a vector of 1st 50 odd number.
+x <- 1:50
+odd_num <- 2 * x - 1
+odd_num
+
+x<-1:50
+even_number<-x*2
+
+m1<-matrix(c(1:9),nrow=3,ncol=3,byrow=TRUE)
+m1[1,3]
+m1[ ,3]
+# create two matrix a and b a having the elements 1to4 and only two rows and b having the elements 5 to 8 and only 2 rows.
+#at the matrix a and b
+#a.  A+B
+#b. A-B
+#c. A*B
+#d.transpose of A and B 
+#e.matrix multiplication using %%
+
+A<-matrix(c(1:4), nrow=2)
+B<-matrix(c(5:9),ncol=2)
+A+B
+A-B
+A*B
+
+dimnames(list)
+
+a<- array(c(1:8), dim=c(2,2,2)) dimname=list(mat_name,row_name)
+b<-array(c("yellow","green"), dim=c(3,2,2))
+a
+b
+
+mat_name<-c("m1","m2")
+row_name<-c("R1","R2","R3")
+
+# factors
+colors_for_c<-c("green","green","red","blue","red","pink")
+factorcolor<- factor(colors_for_c)
+nlevels(factorcolor)
+
+#dataframes
+empnames= c("Hina","Rajat","Abhay")
+empid=c(1,2,3)
+empaddress=c("Delhi","Delhi","Agra")
+df=data.frame(empnames,empid,empaddress)
+df
+
+#create a vector with 12 integer and convert it into a 4*3 matrix using a matrix function.
+x<-1:12
+m<-matrix(x,nrow=4,ncol=3)
+m
+
+#Create a vector with the pattern: 1, 2, ..., 19, 20, 19, ..., 1.
+x<-1:20
+m<-19:1
+pattern<-c(x,m)
+pattern
+
+#  write a R program to reverse the given vector. 
+x<- c(10, 20, 30, 40, 50)
+rev_x <- rev(x)
+rev_x
+
+# R program to add,delete and modify the element in a vector.
+x<-c(10,20)
+x<-c(x,30)    #add
+x
+x<-x[-2]     #delete
+x
+x[-1]<-15   #modify
+x
+
+#write a R program to generate 15 random numbers and find the number which are 
+#greater than average.
+x<-c(1:100,15)
+x
+avg<-mean(x)
+avg
+greater_num<-x[x>avg]
+greater_num
+#or
+x <- sample(1:100, 15)
+avg <- mean(x)
+greater_num <- x[x > avg]
+x
+avg
+greater_num
+
+#to perform the operation on a vector a.find sum, find mean,maximum and minimum values
+# ,add, sub, divide and multiply vectors.
+x<-c(10,30,40)
+y<-c(20,40,50)
+
+sum(x)
+mean(x)
+max(x)
+min(x)
+
+x+y
+x-y
+x*y
+x/y
+
+#create a vector of colors of a book cover and prints its class.
+colors<-c("green","red","blue")
+colors
+class(colors)
+
+#create a vector v1->EMPid(1,2,3,4); v2->EMPname (isha,rohan,praksh,priya); v3-> total employee
+# now a list containing three vectors and print them.
+empid<-c(1,2,3,4)
+empnames<-c("isha","rohan","praksh","priya")
+
+total_emp<- length(empid)  #length() tells how many elements are present in a vector/list
+emp_list<-list (empid,empnames,total_emp)
+emp_list
+
+# write a R script to print Hello World 4 times using 'repeat'
+# loop provided the count is set at 2 initially.
+count<- 2
+repeat{
+  print("Hello world")
+  count<- count + 1
+  if(count>5){
+    break
+  }
+}
+
+#(Write a R script to print Hello While loop 5 times using 'while'loop provided
+# the count is set at 2 initially.)
+count<-2
+while(count<= 6){
+  print("hello")
+  count<- count +1
+}
+
+
+
+#(Write a R script to print first 4 alphabets using 'for' loop.)
+
+for(i in letters[1:4]){    #( LETTERS FOR CAPITAL LETER)
+  print(i)
+}
+
+#(Write a R script to illustrate the usage of break statement.)
+for (i in 1:7){
+  if (i == 5){
+  break
+}
+print(i)
+}
+
+#(Write a R script to illustrate the usage of 'next' statement.)
+for(i in 1:8){
+  if(i == 6){
+    next
+  }
+  print (i)
+}
+  
+#(using built- in functions, write a R script to
+#-create a sequence of numbers from 32 to 44.
+#- find mean of number from 25 to 82.
+#-find sum of numbers from 41 to 68.)
+x<-seq(32,44)
+x
+
+x<-mean(c(25,82))
+x
+
+a<-sum(c(41,68))
+a
+
+#(Write a R script to create a function to- 1.print squares of first 6 no. with argument.
+#2. print sq. of first 5 no. without an argument. 3.create a fun. with argument to compute 
+#a*b+c  and c#all the fun by position of arguments and  by names of the arguments.
+#4. create a fun to compute a*b and call a fun using default arguments.)
+
+square<- function(x){
+  for(i in 1:x){
+    print(i^2) 
+  }
+}
+square(6)
+
+sq<- function(){
+  for(i in 1:5){
+    print(i^2)
+  }
+}
+sq()
+
+#a*b+c  and call the fun by position of arguments and  by names of the arguments.
+call<-function(a,b,c){
+  result<- a*b+c
+  print(result)
+}
+call(2,3,4)
+call(a=2,b=3,c=4)
+
+#4. create a fun. to compute a*b and call a fun using default arguments.)
+calc<-function(a=2,b=4){
+  result<-a*b
+  print(result)
+}
+
+for (i in 1:7){
+  if (i == 5){
+    break
+  }
+  print(i)
+}
+
+
+# matrix using row and column wise.
+ for (i in 1:nrow(m)){
+   for(j in 1:ncol(m))
+     print (i,j) 
+     
+ }
+#create a dataframe consisting of three attributes tranning,pulse,duration.
+df1 =data.frame(training=c("Strength","stamina","others"),
+                pulse = c(100,150,120),duration =c(60, 30 ,45)
+  )
+df1
+
+#graph ploting
+plot(2,3)
+plot(c(1,2),c(3,4))
+
+plot(c(1,2,3,4,5),c(8,9,10,11,12))
+plot(1:10) #sequence
+
+plot(1:10,type= "l")# plot line on graph
+
+plot(1:10,main = "mygraph", xlab = "xaxis",ylab ="yaxis")
+
+# plot for colours
+plot(1:20,main = "mygraph", xlab = "xaxis",ylab ="yaxis")
+plot(1:20)
+col(blue)
+
+
+x<-1:20
+y<-x
+plot(x,y, type ="l", col="red")
+
+plot(1:20,type= "l",col="red")
+
+#create vector of first 15 even numbers
+evenno. <-seq(2,30,by=2)
+evenno.
+
+#create vector of first 50 odd numbers
+oddno. <-seq(1,99,by=2)
+oddno.
+
+
+
+#create vector with 12 integers and covert it into a 4x3 matrix using matrix function.
+v<-c(1,2,3,4,5,6,7,8,9,10,11,12)
+m<-matrix(v,nrow=4,ncol=3,byrow=FALSE)
+m
+rownames(m)<-c("R1","R2","R3","R4")
+colnames(m)<-c("c1","C2","C3")
+m
+
+#create vector of pattern 1,2,3.....20,19,18
+v1<-c(1:20)
+v2<-c(19:1)
+v3<-c(v1,v2)
+v3
+
+#divide two vectors
+v1<-c(8,3,4,5)
+v2<-c(1,2,3,4)
+v3<-v1/v2
+v3
+
+#reverse order of given vector
+v<-c(5,6,7,8)
+rev(v)
+
+#program to add ,delete and modify given vector.
+v<-c(45,5,678,89)
+v1<-c(v,4)
+v1
+v1[2]<-23
+v1
+v2<-v1[-3]
+v2
+
+#generate 15 random numbers and find numbers which are greater than average.
+randomno.<-sample(1:30,15)
+randomno.
+avg<-mean(randomno.)
+avg
+greaterthannums<-randomno.[randomno.>avg]
+greaterthannums
+
+#perform operation on vector : sum ,mean,find max and min values,add,multiply and divide.
+
+v1<-c(3,4,5,6)
+v<-v1+4
+v
+v2<-mean(v1)
+v2
+v3<-max(v1)
+v3
+v4<-min(v1)
+v4
+v5<-v1*3
+v5
+v6<-v1/3
+v6
+
+#vector of colors of book cover and print its class.
+books<-c("red","yellow","blue")
+class(books)
+
+#create three vectors and then contain it on a list
+emp_id<-c(1,2,3,4)
+emp_name<-c("ram","shyam","geeta","sita")
+totalemp<-length(emp_id)
+combined<-list(id=emp_id,name=emp_name,total=totalemp)
+combined
