@@ -1,0 +1,237 @@
+
+# --- Load Required Libraries ---
+# recommenderlab: Main package for recommendation algorithms
+# ggplot2: For data visualization
+# data.table: For efficient data manipulation
+library(recommenderlab)
+library(ggplot2)
+library(data.table)
+
+# --- Load Dataset ---
+# We use the built-in MovieLense dataset
+data("MovieLense")
+
+# --- Data Exploration ---
+# Visualizing the distribution of ratings
+vector_ratings <- as.vector(MovieLense@data)
+vector_ratings <- vector_ratings[vector_ratings != 0] # Remove zero/unrated entries
+
+qplot(vector_ratings, fill=I("steelblue"), col=I("red"), 
+      main="Distribution of Ratings", xlab="Rating")
+
+
+
+
+# --- Visualization: Rating Density ---
+# This shows how many ratings exist vs. how many are missing
+library(ggplot2)
+
+sparse_data <- data.frame(
+  Status = c("Rated", "Unrated"),
+  Count = c(nratings(MovieLense), 
+            (nrow(MovieLense) * ncol(MovieLense)) - nratings(MovieLense))
+)
+
+ggplot(sparse_data, aes(x = "", y = Count, fill = Status)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  theme_void() +
+  scale_fill_manual(values = c("#2ecc71", "#ecf0f1")) +
+  labs(title = "Data Sparsity: Rated vs. Unrated Movies")
+
+
+
+
+# --- Load Lattice for levelplot ---
+library(lattice)
+
+# 1. Identify the top 10 most rated movies
+top_indices <- order(colCounts(MovieLense), decreasing = TRUE)[1:10]
+
+# 2. Get the titles for these movies (using the colnames of the S4 object)
+top_titles <- colnames(MovieLense)[top_indices]
+
+# 3. Correct S4 Coercion: Convert only the subset to a standard matrix
+subset_matrix <- as(MovieLense[, top_indices], "matrix")
+
+# 4. Calculate Correlation
+# 'pairwise.complete.obs' handles the missing (NA) values between movie pairs
+cor_matrix <- cor(subset_matrix, use = "pairwise.complete.obs")
+
+# 5. Set the row and column names so the plot shows movie titles
+rownames(cor_matrix) <- top_titles
+colnames(cor_matrix) <- top_titles
+
+# 6. Plotting
+levelplot(cor_matrix, 
+          scales = list(x = list(rot = 90)), # Rotate movie titles for readability
+          main = "Correlation Heatmap: Top 10 Movies",
+          col.regions = rev(heat.colors(100)), # Using a heat scale
+          xlab = "", ylab = "")
+
+
+
+
+
+# --- Similarity Visualization ---
+# Calculate similarity between the first 10 movies
+similarity_movies <- similarity(MovieLense[, 1:10], 
+                                method = "cosine", 
+                                which = "items")
+
+# Convert to matrix and plot
+image(as.matrix(similarity_movies), 
+      main = "Item Similarity (Cosine)",
+      col = grey.colors(100))
+
+
+
+
+
+library(shiny)
+library(bslib)
+library(shinyWidgets)
+library(recommenderlab)
+library(dplyr)
+library(shinycssloaders) # For professional loading animations
+
+# --- 1. Data Setup ---
+data("MovieLense")
+movie_data <- MovieLense[rowCounts(MovieLense) > 50, colCounts(MovieLense) > 50]
+all_movie_names <- sort(colnames(movie_data))
+movie_popularity <- colCounts(movie_data)
+popular_movies <- names(sort(movie_popularity, decreasing = TRUE))
+
+# --- 2. THE DESIGN (UI) ---
+ui <- fluidPage(
+  theme = bs_theme(version = 5, bootswatch = "darkly", primary = "#E74C3C"),
+  
+  # Custom High-End CSS
+  tags$head(
+    tags$style(HTML("
+      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;700&display=swap');
+      
+      body { background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); font-family: 'Inter', sans-serif; color: white; }
+      .hero-header { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'); 
+                     background-size: cover; padding: 60px 20px; border-radius: 0 0 30px 30px; margin-bottom: 30px; text-align: center; border-bottom: 3px solid #E74C3C; }
+      .hero-title { font-family: 'Bebas Neue', cursive; font-size: 4rem; letter-spacing: 4px; color: #E74C3C; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+      
+      .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
+      .movie-card { background: #222; border-left: 5px solid #E74C3C; border-radius: 8px; padding: 15px; margin: 10px 0; transition: 0.3s; }
+      .movie-card:hover { transform: scale(1.02); background: #2a2a2a; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
+      
+      .btn-generate { background: #E74C3C; border: none; border-radius: 50px; font-weight: 700; padding: 15px; font-size: 1.2rem; transition: 0.4s; box-shadow: 0 4px 15px rgba(231,76,60,0.4); }
+      .btn-generate:hover { background: #c0392b; transform: translateY(-3px); box-shadow: 0 6px 20px rgba(231,76,60,0.6); }
+      
+      .rank-circle { background: #E74C3C; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; }
+    "))
+  ),
+  
+  # Hero Section
+  div(class = "hero-header",
+      div(class = "hero-title", "MOVIE RECOMMENDATION SYSTEM")
+     
+  ),
+  
+  fluidRow(
+    column(4,
+           div(class = "glass-card",
+               h4("CRITIC PANEL", style="font-family: 'Bebas Neue'; color: #E74C3C;"),
+               hr(style="border-color: rgba(255,255,255,0.2)"),
+               
+               lapply(1:5, function(i) {
+                 tagList(
+                   pickerInput(
+                     inputId = paste0("movie_", i),
+                     label = paste("Movie", i),
+                     choices = all_movie_names,
+                     options = list(`live-search` = TRUE, style = "btn-dark"),
+                     selected = all_movie_names[i]
+                   ),
+                   sliderInput(
+                     inputId = paste0("rate_", i),
+                     label = NULL, min = 1, max = 5, value = 3.5, step = 0.1
+                   ),
+                   br()
+                 )
+               }),
+               actionButton("btn_recommend", "GENERATE MY WATCHLIST", class = "btn-generate w-100")
+           )
+    ),
+    
+    column(8,
+           div(class = "glass-card",
+               h4("ALGORITHM OUTPUT", style="font-family: 'Bebas Neue';"),
+               hr(style="border-color: rgba(255,255,255,0.2)"),
+               
+               # Adding a spinner while it calculates
+               withSpinner(uiOutput("movie_results"), color="#E74C3C", type=6),
+               uiOutput("status_msg")
+           )
+    )
+  )
+)
+
+# --- 3. THE LOGIC (SERVER) ---
+server <- function(input, output, session) {
+  
+  # Reactive prevention of duplicate selections
+  observe({
+    selected_vals <- c(input$movie_1, input$movie_2, input$movie_3, input$movie_4, input$movie_5)
+    for(i in 1:5) {
+      current_val <- input[[paste0("movie_", i)]]
+      others_selected <- selected_vals[-i]
+      remaining_choices <- setdiff(all_movie_names, others_selected)
+      updatePickerInput(session, paste0("movie_", i), choices = remaining_choices, selected = current_val)
+    }
+  })
+  
+  recom_results <- eventReactive(input$btn_recommend, {
+    user_ratings <- matrix(0, nrow = 1, ncol = ncol(movie_data))
+    colnames(user_ratings) <- colnames(movie_data)
+    
+    rating_sum <- 0 
+    user_selected <- c()
+    for(i in 1:5) {
+      m <- input[[paste0("movie_", i)]]; r <- input[[paste0("rate_", i)]]
+      user_ratings[1, m] <- r
+      user_selected <- c(user_selected, m)
+      rating_sum <- rating_sum + (r * i) 
+    }
+    
+    set.seed(round(rating_sum * 100)) 
+    user_matrix <- as(user_ratings, "realRatingMatrix")
+    
+    # Model Execution
+    rec_model <- Recommender(movie_data, method = "UBCF")
+    pred <- predict(rec_model, user_matrix, n = 20) 
+    cf_recoms <- as(pred, "list")[[1]]
+    unique_recoms <- setdiff(cf_recoms, user_selected)
+    
+    if(length(unique_recoms) >= 5) {
+      final <- sample(head(unique_recoms, 15), 5)
+    } else {
+      needed <- 5 - length(unique_recoms)
+      fallback <- setdiff(popular_movies, c(user_selected, unique_recoms))
+      final <- c(unique_recoms, sample(head(fallback, 30), needed))
+    }
+    return(final)
+  })
+  
+  # Beautiful Results Rendering (No more boring tables!)
+  output$movie_results <- renderUI({
+    req(recom_results())
+    movies <- recom_results()
+    
+    tagList(
+      lapply(1:5, function(i) {
+        div(class = "movie-card",
+            div(class = "rank-circle", i),
+            span(movies[i], style="font-size: 1.3rem; font-weight: 700; color: #fff;")
+        )
+      })
+    )
+  })
+}
+
+shinyApp(ui, server)
